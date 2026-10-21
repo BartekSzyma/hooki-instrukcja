@@ -89,7 +89,24 @@ test('jest sekcja o konfiguracji lokalnej i globalnej', () => {
   const sekcja = A.INSTRUKCJA.find((s) => s.id === 'gdzie-hooki');
   assert.ok(sekcja);
   const tekst = sekcja.elementy.map((e) => e.html || '').join(' ');
-  for (const w of ['settings.local.json', 'settings.json', 'globalnie', 'lokalnie', '$HOME']) assert.ok(tekst.includes(w), w);
+  for (const w of ['settings.local.json', 'settings.json', 'globalny', 'lokalny', '$HOME']) assert.ok(tekst.includes(w), w);
+});
+
+test('zwykły tekst nie zawiera żargonu (matcher, systemMessage, BOM...) poza ramkami „Dla ciekawskich”', () => {
+  const ZARGON = /matcher|systemMessage|stdout|stderr|\bBOM\b|ExecutionPolicy|hookSpecificOutput|additionalContext/i;
+  for (const s of A.INSTRUKCJA.filter((x) => !['typowe-problemy', 'plugin'].includes(x.id))) {
+    for (const e of s.elementy.filter((x) => 'html' in x)) {
+      if (e.typ === 'uwaga' && e.html.startsWith('<strong>Dla ciekawskich')) continue;
+      assert.doesNotMatch(e.html, ZARGON, `${s.id}: ${e.html.slice(0, 60)}`);
+    }
+  }
+});
+
+test('każda część ćwiczenia ma proste „Co zrobimy” albo wstęp przed promptem', () => {
+  for (const s of A.INSTRUKCJA.filter((x) => x.elementy.some((e) => e.typ === 'prompt' && !e.poglad) && !['k8', 'k9-k10'].includes(x.id))) {
+    const przed = s.elementy.slice(0, s.elementy.findIndex((e) => e.typ === 'prompt'));
+    assert.ok(przed.some((e) => /Co zrobimy/.test(e.html || '')) || s.id === 'gdzie-hooki', `${s.id}: brak „Co zrobimy”`);
+  }
 });
 
 test('odnośniki do instrukcji głównej są bezwzględne (osobne repozytorium)', () => {
