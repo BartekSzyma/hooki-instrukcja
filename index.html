@@ -110,6 +110,78 @@ figure.animacja figcaption { font-size: 13px; color: var(--przygaszony); }
 #plugin { border: 2px dashed var(--przygaszony); border-radius: 8px; padding: 0 16px 8px; background: #f1f5f9; }
 #plugin .prompt { border-style: dashed; border-color: var(--przygaszony); background: #fff; }
 #plugin .prompt .naglowek-promptu { background: var(--przygaszony); }
+/* Motyw graficzny wzorowany na skoroszycie "Claude AI w codziennej pracy": papier w kratkę, granat, czerwony margines.
+   Zmienia wyłącznie wygląd (kolory, czcionki, tło, ramki); układ i klasy zostają jak wyżej. */
+:root {
+  --papier: #FBFCFD; --kratka: rgba(27,58,140,.065); --atrament: #1B3A8C; --atrament-2: #2F56B0; --odcien: #E9EFF9;
+  --czerwien: #D2333F; --grafit: #1E2430; --wyciszony: #5D6678; --linia: #CCD6E7; --zolty: #FFE36E; --zielen: #23804F;
+  --tlo: var(--papier); --panel: #ffffff; --tekst: var(--grafit); --przygaszony: var(--wyciszony); --ramka: var(--linia);
+  --main: var(--atrament); --plus: var(--zielen); --tylda: #B45F06; --minus: #B42318; --prompt: var(--atrament);
+  --mac: #4B5568; --dlaczego: #5B3CC4; --terminal-tlo: var(--grafit); --terminal-tekst: #E8EEF8;
+  --bezszeryfowa: "Bahnschrift", "DIN Alternate", "Segoe UI", "Roboto Condensed", Arial, sans-serif;
+  --szeryfowa: "Sitka Text", "Charter", "Iowan Old Style", Georgia, serif;
+  --mono: "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
+}
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { font-family: var(--szeryfowa); font-size: 17px; line-height: 1.68; -webkit-font-smoothing: antialiased; font-variant-numeric: lining-nums;
+  background-color: var(--papier);
+  background-image: linear-gradient(var(--kratka) 1px, transparent 1px), linear-gradient(90deg, var(--kratka) 1px, transparent 1px);
+  background-size: 24px 24px; }
+a { color: var(--atrament); } a:hover { color: var(--czerwien); }
+:focus-visible { outline: 3px solid var(--atrament); outline-offset: 2px; border-radius: 2px; }
+code, pre { font-family: var(--mono); }
+code { font-size: .88em; background: var(--odcien); padding: .05em .3em; border-radius: 3px; }
+pre code, .komenda code { background: none; padding: 0; font-size: inherit; }
+.naglowek { background: #fff; border-bottom: 3px solid var(--atrament); padding: 22px 20px 18px; }
+.naglowek h1 { font: 600 clamp(1.7rem, 4vw, 2.6rem)/1.05 var(--bezszeryfowa); color: var(--atrament); letter-spacing: -.01em; }
+.naglowek p { font-size: 1rem; max-width: 68ch; }
+main { position: relative; padding: 20px 20px 48px 44px; }
+main::before { content: ""; position: absolute; top: 0; bottom: 0; left: 22px; width: 2px; background: var(--czerwien); opacity: .75; }
+.spis { border-radius: 6px; padding: 10px 18px; font: 500 .95rem/1.4 var(--bezszeryfowa); }
+.spis li { margin: .25rem 0; }
+.spis a { color: var(--atrament); }
+.spis a:hover { color: var(--czerwien); }
+.instrukcja p, .instrukcja li { max-width: 68ch; }
+.instrukcja h2 { font: 600 1.55rem/1.2 var(--bezszeryfowa); color: var(--grafit); border-bottom: 2px solid var(--atrament); margin: 2.4rem 0 .9rem; padding-bottom: .3rem; }
+.instrukcja h3, .instrukcja h4 { font: 600 1.15rem/1.3 var(--bezszeryfowa); color: var(--grafit); margin: 1.6rem 0 .5rem; }
+.instrukcja li::marker { color: var(--atrament); }
+table { font: .93rem/1.4 var(--bezszeryfowa); background: #fff; }
+th, td { border: 0; border-bottom: 1px solid #E3E9F3; padding: .55rem .75rem; }
+th { background: var(--atrament); color: #fff; font-weight: 600; }
+tbody tr:nth-child(even) { background: #F7F9FC; }
+.komenda { background: var(--grafit); border-radius: 6px; padding: 8px 12px; }
+.kopiuj { font: 500 .85rem var(--bezszeryfowa); border-radius: 4px; border: 1.5px solid #8FA3CC; background: transparent; color: #E8EEF8; }
+.kopiuj:hover { background: #fff; color: var(--atrament); }
+.plik { border: 1px solid #D7E0EE; border-left: 4px solid #8C97AA; border-radius: 0 8px 8px 0; background: #F3F6FB; overflow: hidden; }
+.plik .naglowek-pliku { background: transparent; border-bottom: 1px solid #D7E0EE; font: 600 .95rem var(--bezszeryfowa); color: var(--atrament); padding: 8px 12px; }
+.plik pre { font-size: .86rem; line-height: 1.55; color: #1F2937; }
+.prompt { background: #F3F6FB; border: 1px solid #D7E0EE; border-left: 4px solid var(--atrament); border-radius: 0 8px 8px 0; overflow: hidden; margin: 1.4rem 0; }
+.prompt .naglowek-promptu { background: transparent; color: var(--atrament); border-bottom: 1px solid #D7E0EE; padding: 8px 10px 8px 16px; font: 600 .95rem var(--bezszeryfowa); }
+.prompt .kopiuj, .konstruktor .kopiuj { background: #fff; color: var(--atrament); border: 1.5px solid var(--atrament); }
+.prompt .kopiuj:hover, .konstruktor .kopiuj:hover { background: var(--atrament); color: #fff; }
+.prompt pre { font-size: .86rem; line-height: 1.55; color: #1F2937; padding: 14px 16px; }
+.dlaczego, .sprawdz, .uwaga, .wazne, .mac { border: 0; border-left: 4px solid var(--c); background: var(--bg); border-radius: 0 6px 6px 0; padding: .9rem 1.1rem .95rem; margin: 1.4rem 0; }
+.dlaczego > strong { font: 600 .95rem var(--bezszeryfowa); color: var(--c); }
+.dlaczego { --c: #5B3CC4; --bg: #F3F0FD; }
+.sprawdz { --c: #23804F; --bg: #EEF8F1; }
+.uwaga { --c: #B45F06; --bg: #FFF5E6; }
+.wazne { --c: #B42318; --bg: #FDEFEC; font-weight: 600; }
+.mac { --c: #4B5568; --bg: #F1F3F7; font-size: .95rem; }
+.uwaga > strong:first-child, .sprawdz > strong:first-child, .wazne > strong:first-child { font-family: var(--bezszeryfowa); color: var(--c); }
+.schemat { border-radius: 10px; border-color: var(--linia); }
+figure.zrzut img { border: 1px solid var(--linia); border-radius: 8px; box-shadow: 0 2px 10px rgba(27,58,140,.08); }
+figure.zrzut figcaption, figure.animacja figcaption { font: .92rem/1.35 var(--bezszeryfowa); color: var(--wyciszony); margin-top: .4rem; }
+.brak-zrzutu { border-color: var(--linia); border-radius: 8px; background: #fff; }
+.ramka-pomocy { border: 2px solid var(--atrament); background: #fff; }
+.konstruktor { border-color: var(--atrament); background: #fff; }
+.konstruktor h3, .konstruktor label, .konstruktor-wynik .naglowek-pliku { color: var(--atrament); font-family: var(--bezszeryfowa); }
+.konstruktor-wynik { border-left-color: var(--atrament); background: #F3F6FB; }
+.konstruktor textarea, .konstruktor select { border-color: var(--linia); font-family: var(--szeryfowa); }
+#plugin { border-color: #8C97AA; background: #F1F3F7; border-radius: 8px; }
+#plugin .prompt { border-left-color: #8C97AA; background: #fff; border-style: solid; }
+#plugin .prompt .naglowek-promptu { background: transparent; color: var(--wyciszony); }
+@media (max-width: 640px) { main { padding-left: 28px; } main::before { left: 12px; } .instrukcja h2 { font-size: 1.35rem; } }
 </style>
 </head>
 <body>
