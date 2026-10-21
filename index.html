@@ -197,6 +197,10 @@ figure.zrzut figcaption, figure.animacja figcaption { font: .92rem/1.35 var(--be
   .spis a .nr { flex: 0 0 1.5rem; color: var(--czerwien); font-weight: 600; font-variant-numeric: tabular-nums; }
   .spis a.aktywna { background: var(--zolty); color: var(--grafit); }
 }
+.cc-blad { color: #ff6b80; }
+.cc-okno { position: absolute; right: 18px; top: 44px; width: 44%; background: #fff; color: #000; border: 1px solid #1979ca; box-shadow: 0 8px 24px rgba(0,0,0,.5); font: 12px "Segoe UI", sans-serif; white-space: normal; z-index: 2; }
+.cc-okno-tytul { padding: 5px 8px; background: #fff; border-bottom: 1px solid #dadbdc; font-weight: 600; }
+.cc-okno pre { margin: 0; padding: 8px; font: 13px Consolas, monospace; min-height: 70px; white-space: pre-wrap; }
 </style>
 </head>
 <body>
@@ -308,10 +312,19 @@ const PROMPT_Z3 = `Wydaj wersję 1.3 pluginu: w SKILL.md dopisz zasadę, że pod
 const PROMPT_Z4 = `Jaką wersję pluginu pakiet-analityczny mam zainstalowaną? Sprawdź to poleceniem claude plugin list i pokaż mi sekcję „Historia wersji” z SKILL.md zainstalowanego pluginu.`;
 
 
-const BANER_CC = '';
+const BANER_CC = '✻ Welcome to Claude Code!\n\n  /help for help\n  cwd: C:\\Users\\kursant\\Documents\\hooki-cwiczenia';
 const FOLDER_KURSANTA = 'C:\\Users\\kursant\\Documents\\hooki-cwiczenia';
-const PODPOWIEDZI_CC = [];
-const ANIMACJE = {};
+const PODPOWIEDZI_CC = [['/hooks', 'Manage hook configurations'], ['/exit', 'Exit the REPL']];
+const ANIMACJE = {
+  k1: {"rodzaj":"claude","podpis":"Makieta (poglądowa, nie prawdziwy zrzut): zaraz po uruchomieniu Claude pokazuje napis z hooka startowego.","kroki":[["pauza",900],["hook","Hook startowy działa: projekt wystartował"],["pauza",2200]]},
+  k2: {"rodzaj":"claude","podpis":"Makieta (poglądowa): po odpowiedzi Claude pojawia się napis z hooka końcowego.","kroki":[["pauza",700],["pisz","Ile to jest 2 + 2?"],["enter"],["praca",1500],["odp","2 + 2 = 4"],["hook","Hook końcowy: Claude skończył odpowiedź"],["pauza",2200]]},
+  k3: {"rodzaj":"claude","podpis":"Makieta (poglądowa): na starcie sam otwiera się Notatnik z datą i godziną, a w Claude jest napis z hooka.","kroki":[["pauza",700],["notatnik",{"tytul":"dziennik.txt - Notatnik","tresc":"Start sesji: 2026-10-21 09:15:02"}],["hook","Hook startowy: zapisano datę i godzinę w dziennik.txt"],["pauza",2400]]},
+  k4: {"rodzaj":"claude","podpis":"Makieta (poglądowa): gdy Claude pyta o zgodę, hook globalny odtwarza dźwięk (tu zaznaczony napisem).","kroki":[["pauza",700],["pisz","Utwórz plik notatka.txt z tekstem: test"],["enter"],["praca",1400],["odp","Chcę utworzyć plik notatka.txt. Czy mogę?\n  1. Tak     2. Nie"],["hook","♪ Słychać dźwięk (hook Notification z globalnego settings.json)"],["pauza",2400]]},
+  k5: {"rodzaj":"claude","podpis":"Makieta (poglądowa): próba zmiany pliku w folderze oryginaly kończy się odmową hooka.","kroki":[["pauza",700],["pisz","Zmień tekst w pliku oryginaly/raport.txt na: zmieniony"],["enter"],["praca",1400],["blad","Write(oryginaly/raport.txt)\nBlocked by hook: Folder oryginaly jest tylko do odczytu"],["odp","Nie mogę zmienić tego pliku: folder oryginaly jest tylko do odczytu."],["pauza",2400]]},
+  k6: {"rodzaj":"claude","podpis":"Makieta (poglądowa): hook wykrywa błąd w pliku z danymi, a Claude sam go naprawia.","wysokosc":360,"kroki":[["pauza",700],["pisz","Zapisz owoce.json z trzema owocami, celowo z błędem w zapisie"],["enter"],["praca",1400],["odp","Zapisuję plik owoce.json."],["blad","Hook po zapisie: Plik owoce.json nie jest poprawnym JSON-em. Popraw go."],["odp","Hook wykrył błąd. Poprawiam zapis."],["odp","Gotowe: owoce.json jest poprawny."],["pauza",2400]]},
+  k7: {"rodzaj":"claude","podpis":"Makieta (poglądowa): Claude zna aktualną godzinę, bo hook dopisuje ją do każdej wiadomości.","kroki":[["pauza",700],["pisz","Która jest teraz godzina?"],["enter"],["praca",1300],["odp","Jest 10:42, środa, 21 października 2026."],["pauza",2400]]},
+  k11: {"rodzaj":"claude","podpis":"Makieta (poglądowa): jedno słowo „sprzątnij” uruchamia hook, a Claude pokazuje listę do usunięcia i pyta o zgodę.","wysokosc":380,"kroki":[["pauza",700],["pisz","sprzątnij"],["enter"],["praca",1500],["odp","Znalazłem w projekcie zbędne pliki:\n__pycache__/\nstary.tmp\nnotatki.bak"],["odp","Czy usunąć wszystkie? Ważnych plików (CLAUDE.md, .claude, oryginaly) nie ruszam."],["pisz","tak, usuń wszystko z listy"],["pauza",2400]]},
+};
 const PELNA_INSTRUKCJA = 'https://bartekszyma.github.io/skill-docx-pptx-xlsx/cwiczenia-pakiet-analityczny.html';
 
 const KONSTRUKTOR = {
@@ -412,6 +425,7 @@ const INSTRUKCJA = [
     { typ: 'prompt', id: 'K1', tytul: 'Napis na starcie rozmowy', tekst: PROMPT_K1 },
     { typ: 'tekst', html: 'Gdy Claude skończy: wpisz <code>/exit</code> i Enter (Claude się zamknie), potem <code>claude</code> i Enter (uruchomisz go ponownie).' },
     { typ: 'sprawdz', html: 'Zaraz po uruchomieniu widzisz napis <strong>„Hook startowy działa: projekt wystartował”</strong>, z poprawnymi polskimi literami. W folderze projektu jest folder <code>.claude</code> ze skryptem i plikiem <code>settings.json</code>. Wpisz <code>/hooks</code>: Claude pokaże listę ustawionych hooków. Jeśli napisu nie ma, zajrzyj do „Typowych problemów” na końcu.' },
+    { typ: 'animacja', klucz: 'k1' },
     { typ: 'uwaga', html: CIEKAWSKI + 'Skrypt przekazuje napis w specjalnym zapisie (<code>{"systemMessage": "..."}</code>), bo zwykły tekst z hooka startowego widzi tylko Claude, a ty nie. Skrypt jest zapisany w kodowaniu „UTF-8 z BOM”, bo inaczej PowerShell zamieniłby polskie litery w krzaki. Polecenie <code>powershell -NoProfile -ExecutionPolicy Bypass -File ...</code> uruchamia skrypt bez ustawień użytkownika i bez blokady skryptów. Słowo <code>startup</code> w regule oznacza „tylko przy świeżym starcie” (nie przy wznowieniu starej rozmowy).' },
   ] },
   { id: 'k2', tytul: '3. K2: napis na zakończenie', elementy: [
@@ -421,6 +435,7 @@ const INSTRUKCJA = [
     { typ: 'tekst', html: 'Zamknij Claude (<code>/exit</code>), uruchom go ponownie (<code>claude</code>) i zadaj dowolne pytanie, np.:' },
     { typ: 'komenda', tekst: 'Podaj stolicę Polski jednym słowem.' },
     { typ: 'sprawdz', html: 'Po odpowiedzi pod spodem pojawia się napis <strong>„Hook końcowy: Claude skończył odpowiedź”</strong>. Zadaj drugie pytanie: napis pojawi się znowu. Potem wpisz <code>/exit</code> i otwórz w folderze projektu plik <code>koniec.log</code>: są w nim linie z datą i godziną.' },
+    { typ: 'animacja', klucz: 'k2' },
     { typ: 'uwaga', html: CIEKAWSKI + 'te dwa momenty nazywają się w Claude Code <code>Stop</code> (koniec odpowiedzi) i <code>SessionEnd</code> (koniec rozmowy). Skrypt dostaje od Claude Code informację, który z nich zachodzi, i zachowuje się odpowiednio.' },
   ] },
   { id: 'k3', tytul: '4. K3: Notatnik z datą i godziną na starcie', elementy: [
@@ -429,6 +444,7 @@ const INSTRUKCJA = [
     { typ: 'prompt', id: 'K3', tytul: 'Hook startowy otwiera Notatnik z datą i godziną', tekst: PROMPT_K3 },
     { typ: 'tekst', html: 'Zamknij Notatnik. Potem zamknij Claude (<code>/exit</code>) i uruchom go ponownie (<code>claude</code>). Powtórz to jeszcze raz.' },
     { typ: 'sprawdz', html: 'Przy każdym starcie otwiera się Notatnik z plikiem <code>dziennik.txt</code>. Po dwóch uruchomieniach są w nim dwie linie „Start sesji: ...” z różnymi godzinami (stare linie nie znikają). Na ekranie Claude jest też napis z hooka.' },
+    { typ: 'animacja', klucz: 'k3' },
     { typ: 'uwaga', html: 'Ten hook jest dobrym przykładem na to, że <strong>nie każdy hook powinien działać wszędzie</strong>: gdyby był globalny, Notatnik otwierałby się na starcie każdego projektu na komputerze. O tym, gdzie zapisywać hooki, jest następna część.' },
   ] },
   { id: 'gdzie-hooki', tytul: '5. Gdzie zapisać hook: w jednym projekcie czy wszędzie (z ćwiczeniem K4)', elementy: [
@@ -441,6 +457,7 @@ const INSTRUKCJA = [
     { typ: 'tekst', html: 'Zamknij Claude (<code>/exit</code>) i uruchom go ponownie. Poproś o coś, na co Claude musi zapytać o zgodę, np.:' },
     { typ: 'komenda', tekst: 'Utwórz plik probny.txt z napisem test.' },
     { typ: 'sprawdz', html: 'Claude pyta o zgodę na zapis pliku i w tym samym momencie słychać dźwięk (czasem po chwili). Test drugi: otwórz Claude w <strong>zupełnie innym folderze</strong> i poproś o coś, co wymaga zgody. Dźwięk też zagra, bo hook jest globalny. Jeśli nie chcesz go zostawić, poproś: „usuń z globalnego settings.json hook Notification i skrypt dzwiek.ps1”.' },
+    { typ: 'animacja', klucz: 'k4' },
   ] },
   { id: 'k5', tytul: '6. K5: zakaz zmieniania ważnego folderu', elementy: [
     { typ: 'tekst', html: '<p><strong>Co zrobimy:</strong> zrobimy folder <code>oryginaly</code>, którego Claude <strong>nie będzie mógł zmienić</strong>, nawet jeśli o to poprosisz. Odczytywać pliki z niego będzie mógł normalnie.</p>' },
@@ -451,6 +468,7 @@ const INSTRUKCJA = [
     { typ: 'tekst', html: 'Potem tylko <strong>odczytać</strong>:' },
     { typ: 'komenda', tekst: 'Pokaż zawartość pliku oryginaly/raport.txt.' },
     { typ: 'sprawdz', html: 'Zmiana się nie udaje: Claude zgłasza, że <strong>„Folder oryginaly jest tylko do odczytu”</strong>, a plik <code>raport.txt</code> został bez zmian. Odczyt działa normalnie, a zapis w innych miejscach projektu też. Spróbuj jeszcze go przechytrzyć: poproś „zapisz ten plik innym sposobem, np. poleceniem w terminalu”. Zakaz powinien trzymać również wtedy.' },
+    { typ: 'animacja', klucz: 'k5' },
     { typ: 'uwaga', html: CIEKAWSKI + 'to moment <code>PreToolUse</code> (przed użyciem narzędzia). Skrypt dostaje informację, jakiego narzędzia chce użyć Claude i na którym pliku, a odpowiada decyzją „deny” (odmowa) z uzasadnieniem. Pięć „drzwi” to narzędzia <code>Write</code>, <code>Edit</code>, <code>MultiEdit</code>, <code>Bash</code> i <code>PowerShell</code>.' },
   ] },
   { id: 'k6', tytul: '7. K6: automatyczne sprawdzanie plików z danymi', elementy: [
@@ -460,6 +478,7 @@ const INSTRUKCJA = [
     { typ: 'tekst', html: 'Zamknij Claude (<code>/exit</code>), uruchom go ponownie i zleć celowy błąd:' },
     { typ: 'komenda', tekst: 'Zapisz plik owoce.json z listą trzech owoców, ale celowo zapomnij o cudzysłowach, żeby plik był zepsuty. Zobacz, co zgłosi hook, i napraw plik.' },
     { typ: 'sprawdz', html: 'Claude zapisuje zepsuty plik, dostaje od hooka informację, że „nie jest poprawnym JSON-em” (tak fachowo nazywa się ten zapis), i sam go naprawia. Na końcu <code>owoce.json</code> jest poprawny. Możesz poprosić: „sprawdź jeszcze raz, czy owoce.json jest poprawny”.' },
+    { typ: 'animacja', klucz: 'k6' },
     { typ: 'uwaga', html: CIEKAWSKI + 'to moment <code>PostToolUse</code> (po użyciu narzędzia). Skrypt, gdy plik jest zepsuty, kończy pracę specjalnym kodem „2” i wypisuje komunikat błędu. Taki sygnał Claude Code przekazuje Claude jako wezwanie do poprawki.' },
   ] },
   { id: 'k7', tytul: '8. K7: godzina w każdej rozmowie', elementy: [
@@ -469,6 +488,7 @@ const INSTRUKCJA = [
     { typ: 'tekst', html: 'Zamknij Claude (<code>/exit</code>), uruchom go ponownie i zapytaj:' },
     { typ: 'komenda', tekst: 'Która jest teraz godzina i jaki mamy dzień tygodnia?' },
     { typ: 'sprawdz', html: 'Claude podaje godzinę zgodną z zegarem komputera i właściwy dzień tygodnia, bez uruchamiania żadnych poleceń. W folderze <code>.claude</code> są teraz dwa pliki ustawień: <code>settings.json</code> (hooki K1, K2, K5, K6) i <code>settings.local.json</code> (K7). Jeśli projekt jest repozytorium gita, zajrzyj do pliku <code>.gitignore</code>: powinna być w nim nazwa <code>settings.local.json</code> (Claude Code zwykle dopisuje ją sam). Jeśli nie ma, poproś Claude o dopisanie.' },
+    { typ: 'animacja', klucz: 'k7' },
     { typ: 'uwaga', html: CIEKAWSKI + 'to moment <code>UserPromptSubmit</code> (wysłanie wiadomości). Zwykły tekst wypisany przez ten hook trafia do Claude jako dodatkowa informacja.' },
   ] },
   { id: 'pomysly', tytul: '9. Do czego jeszcze przydadzą się hooki', elementy: [
@@ -504,6 +524,7 @@ const INSTRUKCJA = [
     { typ: 'tekst', html: 'Zamknij Claude (<code>/exit</code>), uruchom go ponownie i wpisz jedno słowo:' },
     { typ: 'komenda', tekst: 'sprzątnij' },
     { typ: 'sprawdz', html: 'Claude pokazuje listę przygotowanych „śmieci” (<code>__pycache__</code>, <code>stary.tmp</code>, <code>notatki.bak</code>), nie proponuje usunięcia ważnych plików (<code>CLAUDE.md</code>, folderu <code>.claude</code>, folderu <code>oryginaly</code>) i <strong>pyta o zgodę</strong>. Odpowiedz „tak, usuń wszystko z listy” i sprawdź, że pliki zniknęły. Wiadomość, która nie zaczyna się od słowa „sprzątnij”, nie uruchamia sprzątania.' },
+    { typ: 'animacja', klucz: 'k11' },
     { typ: 'tekst', html: '<h3>Pomysły do samodzielnej próby</h3><ul><li>Zmień słowo wywołujące (np. na <code>porządki</code>) albo dopisz do listy własne rodzaje plików do sprzątania.</li><li>Dla projektu <code>analizy-spolek</code> dopisz typowe śmieci pakietu analitycznego: podglądy slajdów, pliki tymczasowe LibreOffice, kopie robocze zdjęć, które nie weszły do ledgera.</li><li>Zrób z tego <strong>skill</strong> (<code>/sprzatnij</code>). Różnica: hook zawsze przeszuka projekt, a skill Claude może wywołać albo pominąć.</li></ul>' },
     { typ: 'uwaga', html: CIEKAWSKI + 'to moment <code>UserPromptSubmit</code>. Skrypt sprawdza treść wiadomości i tylko dla słowa „sprzątnij” oddaje Claude dodatkowy tekst z listą i poleceniem (pole <code>additionalContext</code>).' },
   ] },
@@ -624,14 +645,21 @@ function rysujClaude(ekran, s) {
   const podpowiedzi = s.wpis.startsWith('/') && !s.wpis.includes(' ')
     ? PODPOWIEDZI_CC.filter(([nazwa]) => nazwa.startsWith(s.wpis)).slice(0, 3) : [];
   const lista = podpowiedzi.map(([nazwa, opis], i) => `<span class="${i ? 'cc-szary' : 'cc-wybrana'}">${i ? ' ' : '❯'} ${nazwa.padEnd(22)}${esc(opis)}</span>`).join('\n');
-  const historia = s.historia.map((h) => `\n<span class="cc-uzytkownik">❯ ${esc(h)} </span>`).join('');
+  const wiersze = (t, znak) => esc(t).split('\n').map((l, i) => (i ? '    ' : znak) + l).join('\n');
+  const historia = s.historia.map((h) => {
+    if (typeof h === 'string') return `\n<span class="cc-uzytkownik">❯ ${esc(h)} </span>`;
+    if (h.rodzaj === 'hook') return `\n<span class="cc-szary">${wiersze(h.tekst, '  ⎿  ')}</span>`;
+    if (h.rodzaj === 'blad') return `\n<span class="cc-blad">${wiersze(h.tekst, '  ⎿  ')}</span>`;
+    return `\n${wiersze(h.tekst, '● ')}`;
+  }).join('');
+  const okno = s.okno ? `<div class="cc-okno"><div class="cc-okno-tytul">${esc(s.okno.tytul)}</div><pre>${esc(s.okno.tresc)}</pre></div>` : '';
   const praca = s.praca ? `\n\n<span class="cc-spinner">${s.praca} Pondering…</span>` : '';
   const wpis = s.wpis.startsWith('/') ? `<span class="cc-wybrana">${esc(s.wpis)}</span>` : esc(s.wpis);
   const pole = s.wpis ? wpis + KURSOR : s.praca ? KURSOR : `${KURSOR}<span class="cc-szary">Try "refactor &lt;filepath&gt;"</span>`;
   const stopka = s.praca ? 'esc to interrupt' : s.wklejony ? 'paste again to expand' : '? for shortcuts';
   const notatnik = s.rozwiniety ? '<div class="cc-szary" style="text-align:right">ctrl+g to edit in Notepad</div>' : '';
   ekran.innerHTML = `<div class="cc-gora">${BANER_CC}\n${historia}${praca}</div>${lista ? `<div>${lista}</div>` : ''}${notatnik}`
-    + `<div class="cc-pole">❯ ${pole}</div><div class="cc-stopka">${stopka}</div>${klawisz}`;
+    + `<div class="cc-pole">❯ ${pole}</div><div class="cc-stopka">${stopka}</div>${okno}${klawisz}`;
   // Jak w terminalu: przy długiej treści widać jej koniec.
   for (const k of ['.cc-gora', '.cc-pole']) { const el = ekran.querySelector(k); el.scrollTop = el.scrollHeight; }
 }
@@ -640,7 +668,7 @@ const CZAS_KLAWISZA = 2400;  // tyle widać nazwę naciśniętego klawisza
 
 // Odtwarza scenariusz z ANIMACJE; tempo 0 rysuje od razu stan końcowy.
 async function odtworzClaude(ekran, kroki, tempo) {
-  const s = { tryb: 'claude', historia: [], wpis: '', wklejony: false, rozwiniety: false, praca: null, klawisz: '', konsola: [] };
+  const s = { tryb: 'claude', historia: [], wpis: '', wklejony: false, rozwiniety: false, praca: null, klawisz: '', konsola: [], okno: null };
   const czekaj = (ms) => (tempo ? new Promise((r) => setTimeout(r, ms * tempo)) : null);
   let zegar;
   rysujClaude(ekran, s);
@@ -662,6 +690,9 @@ async function odtworzClaude(ekran, kroki, tempo) {
       s.praca = ZNAKI_PRACY[4];
       for (let t = 0; tempo && t < arg; t += 130) { s.praca = ZNAKI_PRACY[(t / 130) % ZNAKI_PRACY.length]; rysujClaude(ekran, s); await czekaj(130); }
     }
+    else if (co === 'hook' || co === 'odp' || co === 'blad') { s.historia.push({ rodzaj: co, tekst: arg }); if (co !== 'hook') s.praca = null; await czekaj(500); }
+    else if (co === 'koniecpracy') s.praca = null;
+    else if (co === 'notatnik') { s.okno = arg; await czekaj(500); }
     else if (co === 'wyjdz') Object.assign(s, { tryb: 'konsola', wpis: '', konsola: ['Resume this session with:', 'claude --resume b09e6fea-196f-48d0-8390-de8540f616d3', '', `PS ${FOLDER_KURSANTA}> `] });
     else if (co === 'uruchom') Object.assign(s, { tryb: 'claude', historia: [], wpis: '', praca: null });
     rysujClaude(ekran, s);

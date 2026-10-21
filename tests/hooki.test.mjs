@@ -122,3 +122,14 @@ test('żaden plik tekstowy nie zawiera długich myślników', () => {
   const pliki = (k) => readdirSync(k, { withFileTypes: true }).flatMap((w) => (pomijane.has(w.name) ? [] : w.isDirectory() ? pliki(join(k, w.name)) : ['.html', '.mjs', '.md', '.json'].includes(extname(w.name)) ? [join(k, w.name)] : []));
   for (const p of pliki(korzen)) for (const z of zakazane) assert.ok(!z.test(readFileSync(p, 'utf8')), p);
 });
+
+test('ćwiczenia K1-K7 i K11 mają makietę, a każda makieta ma znane kroki', () => {
+  const uzyte = elementy().filter((e) => e.typ === 'animacja').map((e) => e.klucz);
+  assert.deepEqual(j(uzyte), ['k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k11']);
+  const ZNANE = new Set(['pauza', 'pisz', 'enter', 'praca', 'hook', 'odp', 'blad', 'notatnik', 'koniecpracy', 'wyjdz']);
+  for (const k of uzyte) {
+    const a = A.ANIMACJE[k];
+    assert.ok(a && a.podpis.startsWith('Makieta'), k);
+    for (const [co] of a.kroki) assert.ok(ZNANE.has(co), `${k}: ${co}`);
+  }
+});
